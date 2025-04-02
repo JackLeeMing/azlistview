@@ -5,6 +5,27 @@ import '../azlistview/index.dart';
 import '../common/github_language_colors.dart';
 import '../common/index.dart';
 
+Color hexToColor(String? hexString, {Color defaultColor = Colors.grey}) {
+  // 检查 hexString 是否为空或 null
+  if (hexString == null || hexString.isEmpty) {
+    return defaultColor;
+  }
+
+  // 移除 # 符号（如果存在）
+  final String hex = hexString.replaceAll('#', '');
+
+  if (hex.length == 6) {
+    // 6位十六进制（无透明度）
+    return Color(int.parse('FF$hex', radix: 16));
+  } else if (hex.length == 8) {
+    // 8位十六进制（包含透明度）
+    return Color(int.parse(hex, radix: 16));
+  } else {
+    // 无效的十六进制颜色格式，返回默认颜色
+    return defaultColor;
+  }
+}
+
 class GitHubLanguagePage extends StatefulWidget {
   const GitHubLanguagePage({
     super.key,
@@ -81,7 +102,7 @@ class GitHubLanguagePageState extends State<GitHubLanguagePage> {
       color: Color(0xFFF3F4F5),
       alignment: Alignment.centerLeft,
       child: Text(
-        '$tag',
+        tag,
         softWrap: false,
         style: TextStyle(
           fontSize: 14.0,
@@ -94,7 +115,25 @@ class GitHubLanguagePageState extends State<GitHubLanguagePage> {
   Widget getListItem(BuildContext context, Languages model,
       {double susHeight = 40}) {
     return ListTile(
-      title: Text(model.name),
+      title: Row(
+        children: [
+          const SizedBox(width: 8),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+            decoration: BoxDecoration(
+              color: hexToColor(model.color),
+              borderRadius: BorderRadius.circular(4),
+            ),
+            width: 16,
+            height: 16,
+          ),
+          const SizedBox(width: 10),
+          Text(
+            model.name,
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+        ],
+      ),
       onTap: () {
         LogUtil.v("onItemClick : $model");
         Utils.showSnackBar(context, "onItemClick : $model");
